@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/index/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#333333",
+    "navigationBarBackgroundColor": "#F47D43",
+    "navigationBarTitleText": "段子分享库",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
+  }
+}
