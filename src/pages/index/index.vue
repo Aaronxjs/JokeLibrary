@@ -1,23 +1,18 @@
 <template>
   <div class="body">
     <div class="tabList">
-      <span class="tab" v-for="tab in tabs" :key="tab.id">{{tab.text}}</span>
+      <span class="tab" v-for="tab in tabs" :key="tab.id" @click="tabFn">{{tab.text}}</span>
     </div>
     <div class="content">
-      <div class="class" v-for="tab_list in tab_list_arr" :key="tab_list.index">
-        <card :item="tab_list"></card>
-      </div>
+      <vcard :items="tab_list" :isShow="isShowArr[index]" v-for="tab_list in tab_list_arr" :key="tab_list.index" :index="index" :data-index="index"></vcard>
     </div>
-
   </div>
-
-
-
 </template>
 
 <script>
 import vcard from '@/components/card'
-const oncePushNum = 8
+const oncePushNum = 8 // 每次加载笑话文档的个数
+let tabId = 0 // 当前加载的列表类型id
 export default {
   components: {
     vcard
@@ -42,7 +37,8 @@ export default {
           text: '恋爱必读'
         }
       ],
-      tab_list_arr: [],
+      tab_list_arr: [], // 二维数组,每种类型笑话存储一个数组
+      isShowArr: [],
       lists: [
         {
           text: '今天逛街，发现苹果直营店，人群在买IP4，偶遇一大妈问：“这手机很便宜吗？这么多人排队。',
@@ -160,13 +156,13 @@ export default {
   created () {
     console.log('page index created', this)
     console.log('page index created', wx)
-    this.getItemData()
   },
   mounted () {
     console.log('mounted', this)
   },
   onLoad () {
     console.log('page index onLoad', this)
+    this.getItemData(tabId)
   },
   onReady () {
     console.log('page index onReady', this)
@@ -192,17 +188,23 @@ export default {
     mpvue.showLoading({
       title: '加载中'
     })
-    this.getItemData()
+    this.getItemData(tabId)
     mpvue.hideLoading()
   },
   methods: {
-    getItemData () {
-      console.log(this.lists)
-      if (this.lists.length > 0) {
-        let newArr = this.lists.splice(0, oncePushNum)
-        this.items = this.items.concat(newArr)
-        console.log(this.items)
-      } else {}
+    getItemData (_tabId) {
+      if (Object.prototype.toString.call(this.tab_list_arr[_tabId]) !== '[object Array]') {
+        this.tab_list_arr[_tabId] = [].concat(this.lists.slice(0, oncePushNum))
+      } else {
+        var len = this.tab_list_arr[_tabId].length
+        if (len < this.lists.length) {
+          this.tab_list_arr[_tabId] = this.tab_list_arr[_tabId].concat(this.lists.slice(len - 1, len + oncePushNum - 1))
+        }
+      }
+      this.$set(this.tab_list_arr, _tabId, this.tab_list_arr[_tabId])
+      this.isShowArr = this.isShowArr.map((x) => false && x)
+      this.isShowArr[_tabId] = true
+      this.$set(this.isShowArr, _tabId, this.isShowArr[_tabId])
     },
     copyFn (e) {
       console.log(e.currentTarget.dataset)
@@ -223,6 +225,11 @@ export default {
     },
     likeFn (e) {
       console.log(e)
+    },
+    tabFn (e) {
+      let eventidArr = e.currentTarget.dataset.eventid.split('_')
+      tabId = eventidArr[eventidArr.length - 1]
+      this.getItemData(tabId)
     }
   }
 }
@@ -254,12 +261,7 @@ export default {
     box-sizing: border-box;
     width: 40%;
   }
-  .list{
-    background-color: #ffffff;
-    margin: 20rpx;
-    padding: 10rpx;
-    border-radius: 10rpx;
-  }
+
   .content{
     margin-top: 40px;
     padding: 10rpx 0rpx;
@@ -267,54 +269,5 @@ export default {
     height: 100%;
     background-color:#eeeeee; 
   }
-.title{
-  display: flex;
-  align-items: center;
-  justify-items: flex-start;
-  font-size: 12px;
-  color: #cccccc;
-  line-height: 16px;
-  padding: 10px;
-}
-.title img{
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
-}
-.btnDiv{
-  text-align: right;
-  padding-top: 10px;
-}
 
-.btnDiv img{
-  width: 32px;
-  height: 32px;
-}
-
-.btnDiv span{
-  display: inline-block;
-  vertical-align: middle;
-}
-.btnDiv span+span{
-  margin-left: 20px;
-}
-article{
-  text-indent:32px;
-  font-size: 16px;
-  border-bottom: 1px solid #eeeeee;
-  padding-bottom: 10px;
-}
-button{
-  padding: 0px;
-  border: 0px;
-  line-height: 0px;
-  box-sizing: content-box;
-}
-button::after{ 
-  border: none;
-}
-.button-hover{
-  color: #ffffff;
-  background-color: #ffffff;
-}
 </style>
