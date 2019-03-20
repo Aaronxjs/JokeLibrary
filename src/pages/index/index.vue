@@ -1,15 +1,22 @@
 <template>
   <div class="body">
-    <div class="tabList">
+    <van-tabs swipeable animated @change="onChange">
+      <van-tab v-for="tab in tabs" :title="tab.text" :key="tab.id" :index="index" :data-index="index">
+        <vcard :items="tab_list_arr[index]"></vcard>
+      </van-tab>
+    </van-tabs>
+    <!-- <div class="tabList">
       <span class="tab" v-for="tab in tabs" :key="tab.id" @click="tabFn">{{tab.text}}</span>
     </div>
     <div class="content">
       <vcard :items="tab_list" :isShow="isShowArr[index]" v-for="tab_list in tab_list_arr" :key="tab_list.index" :index="index" :data-index="index"></vcard>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
+// import vanTab from '@/../static/vant/tab/index'
+// import vanTabs from '@/../static/vant/tabs/index'
 import vcard from '@/components/card'
 const oncePushNum = 8 // 每次加载笑话文档的个数
 let tabId = 0 // 当前加载的列表类型id
@@ -38,7 +45,6 @@ export default {
         }
       ],
       tab_list_arr: [], // 二维数组,每种类型笑话存储一个数组
-      isShowArr: [],
       lists: [
         {
           text: '今天逛街，发现苹果直营店，人群在买IP4，偶遇一大妈问：“这手机很便宜吗？这么多人排队。',
@@ -202,40 +208,26 @@ export default {
         }
       }
       this.$set(this.tab_list_arr, _tabId, this.tab_list_arr[_tabId])
-      this.isShowArr = this.isShowArr.map((x) => false && x)
-      this.isShowArr[_tabId] = true
-      this.$set(this.isShowArr, _tabId, this.isShowArr[_tabId])
-    },
-    copyFn (e) {
-      console.log(e.currentTarget.dataset)
-      var textArr = e.currentTarget.dataset.eventid.split('_')
-      var text = this.items[textArr[textArr.length - 1]].text
-      mpvue.setClipboardData({
-        data: text,
-        success: function (res) {
-          mpvue.getClipboardData({
-            success: function (res) {
-              mpvue.showToast({
-                title: '复制成功'
-              })
-            }
-          })
-        }
-      })
     },
     likeFn (e) {
       console.log(e)
     },
-    tabFn (e) {
-      let eventidArr = e.currentTarget.dataset.eventid.split('_')
-      tabId = eventidArr[eventidArr.length - 1]
+    onChange (e) {
+      tabId = e.target.index
+      console.log(e)
       this.getItemData(tabId)
     }
   }
+
 }
 </script>
 
 <style scoped>
+  .van-tabs{
+    position: fixed;
+    left: 0px;
+    top: 0px;
+  }
   .body{
     position: relative;
   }

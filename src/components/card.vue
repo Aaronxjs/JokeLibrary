@@ -1,5 +1,5 @@
 <template>
-  <div class="vcard" :class="{hide: !isShow}">
+  <div class="vcard">
     <div class="list" v-for="item in items" :key="item.index">
       <div class="title"><img src="../../static/images/icon.png"/><span>段子分享库</span></div>
       <article>{{item.text}}</article>
@@ -14,10 +14,25 @@ export default {
     items: {
       type: Array,
       default: []
-    },
-    isShow: {
-      type: Boolean,
-      default: false
+    }
+  },
+  methods: {
+    copyFn (e) {
+      console.log(e.currentTarget.dataset)
+      var textArr = e.currentTarget.dataset.eventid.split('_')
+      var text = this.items[textArr[textArr.length - 1]].text
+      mpvue.setClipboardData({
+        data: text,
+        success: function (res) {
+          mpvue.getClipboardData({
+            success: function (res) {
+              mpvue.showToast({
+                title: '复制成功'
+              })
+            }
+          })
+        }
+      })
     }
   },
   created () {
@@ -26,19 +41,13 @@ export default {
   },
   onLoad () {
     console.log('page index onLoad', this)
-    console.log('page index onLoad', this.isShow)
+    console.log('page index onLoad', this.items)
   }
 }
 </script>
 
 <style scoped>
-.hide{
-  display: none;
-}
 .vcard{
-  position: absolute;
-  left: 0px;
-  top: 0px;
   background-color:#eeeeee; 
 }
 .list{
