@@ -5,12 +5,6 @@
         <vcard :items="tab_list_arr[index]"></vcard>
       </van-tab>
     </van-tabs>
-    <!-- <div class="tabList">
-      <span class="tab" v-for="tab in tabs" :key="tab.id" @click="tabFn">{{tab.text}}</span>
-    </div>
-    <div class="content">
-      <vcard :items="tab_list" :isShow="isShowArr[index]" v-for="tab_list in tab_list_arr" :key="tab_list.index" :index="index" :data-index="index"></vcard>
-    </div> -->
   </div>
 </template>
 
@@ -22,20 +16,17 @@ import vcard from '@/components/card'
 const oncePushNum = 8 // 每次加载笑话文档的个数
 let tabId = 0 // 当前加载的列表类型id
 
-mpvue.cloud.init({env:'aaronxu-6ba5fc'})
-const db = mpvue.cloud.database({env:'aaronxu-6ba5fc'}) //[此处ENV可以不屑]
+mpvue.cloud.init({env: 'aaronxu-6ba5fc'})
+const db = mpvue.cloud.database({env: 'aaronxu-6ba5fc'}) // [此处ENV可以不屑]
 export default {
   components: {
     vcard
   },
   data () {
     return {
-      tabs: [
-
-      ],
+      tabs: [],
       tab_list_arr: [], // 二维数组,每种类型笑话存储一个数组
-      lists: [
-      ]
+      lists: []
     }
   },
   created () {
@@ -78,15 +69,18 @@ export default {
   },
   methods: {
     getItemData (_tabId) {
-      if (Object.prototype.toString.call(this.tab_list_arr[_tabId]) !== '[object Array]') {
-        this.tab_list_arr[_tabId] = [].concat(this.lists.slice(0, oncePushNum))
+      let self = this
+      if (Object.prototype.toString.call(self.tab_list_arr[_tabId]) !== '[object Array]') {
+        self.tab_list_arr[_tabId] = [].concat(self.lists[_tabId].slice(0, oncePushNum)) // 此处是返回一个新建数据，而不是传入自身数组
       } else {
-        var len = this.tab_list_arr[_tabId].length
-        if (len < this.lists.length) {
-          this.tab_list_arr[_tabId] = this.tab_list_arr[_tabId].concat(this.lists.slice(len - 1, len + oncePushNum - 1))
+        var len = self.tab_list_arr[_tabId].length
+        if (len < self.lists[_tabId].length) {
+          // this.tab_list_arr[_tabId] = this.tab_list_arr[_tabId].concat(this.lists.slice(len - 1, len + oncePushNum - 1)) // 此处是返回一个新建数据，而不是传入自身数组
+          self.tab_list_arr[_tabId].push.apply(null, self.lists[_tabId].slice(len - 1, len + oncePushNum - 1)) // 一个数组的元素放入到另外一个元素
         }
       }
-      this.$set(this.tab_list_arr, _tabId, this.tab_list_arr[_tabId])
+      self.$set(self.tab_list_arr, _tabId, self.tab_list_arr[_tabId])
+      console.log(self.tab_list_arr)
     },
     likeFn (e) {
       console.log(e)
@@ -94,27 +88,44 @@ export default {
     onChange (e) {
       tabId = e.target.index
       console.log(e)
-      this.getItemData(tabId)
-    },
-    selectDB (_name, _postData, _callBack) {
-      if(Object.prototype.toString.call(_postData) === "[object Array]"){
-        db.collection(_name).where(_postData).get({
-          success:function(res){
-            //res.data 包含该记录的数据
-            console.log(res.data)
-            _callBack.apply(this, res.data)
+      let self = this
+      if (Object.prototype.toString.call(self.lists[tabId]) !== '[object Array]') {
+        let selectData = {
+          name: 'text',
+          postData: {'_tabId': tabId},
+          callBack: (data) => {
+            console.log(data) // arguments是什么？
+            self.lists[tabId] = data
+            self.getItemData(tabId)
           }
-        })
-      }else{
-        db.collection(_name).get({
-          success:function(res){
-            //res.data 包含该记录的数据
-            console.log(res.data)
-            _callBack.apply(this, res.data)
-          }
-        })
+        }
+        console.log(selectData)
+        self.selectDB(selectData).then()
       }
-
+    },
+    selectDB (_property) {
+      let {name, postData, callBack} = _property
+      let promise = new Promise((resolve, reject) => {
+        if (Object.prototype.toString.call(postData) === '[object Object]') {
+          db.collection(name).where(postData).get({
+            success: function (res) {
+              // res.data 包含该记录的数据
+              resolve(callBack)
+              callBack.apply(this, [res.data])
+            }
+          })
+        } else {
+          db.collection(name).get({
+            success: function (res) {
+              // res.data 包含该记录的数据
+              console.log(res.data)
+              resolve(callBack)
+              callBack.apply(this, [res.data])
+            }
+          })
+        }
+      })
+      return promise
     }
   }
 
