@@ -2,7 +2,7 @@
   <div class="body">
     <van-tabs swipeable animated @change="onChange">
       <van-tab v-for="tab in tabs" :title="tab.text" :key="tab.id" :index="index" :data-index="index">
-        <vcard :items="tab_list_arr[index]"></vcard>
+        <vcards :items="tab_list_arr[index]"></vcards>
       </van-tab>
     </van-tabs>
   </div>
@@ -12,7 +12,7 @@
 // import vanTab from '@/../static/vant/tab/index'
 // import vanTabs from '@/../static/vant/tabs/index'
 
-import vcard from '@/components/card'
+import vcards from '@/components/cards/cards'
 const oncePushNum = 8 // 每次加载笑话文档的个数
 let tabId = 0 // 当前加载的列表类型id
 
@@ -20,7 +20,7 @@ mpvue.cloud.init({env: 'aaronxu-6ba5fc'})
 const db = mpvue.cloud.database({env: 'aaronxu-6ba5fc'}) // [此处ENV可以不屑]
 export default {
   components: {
-    vcard
+    vcards
   },
   data () {
     return {
@@ -38,7 +38,34 @@ export default {
   },
   onLoad () {
     console.log('page index onLoad', this)
-    this.getItemData(tabId)
+    var self = this
+    if (Object.prototype.toString.call(self.lists[tabId]) !== '[object Array]') {
+      let selectData = {
+        name: 'text',
+        postData: {'_tabId': tabId}
+      }
+      self.selectDB(selectData).then((data) => {
+        data.forEach((x) => {
+          x['text'] = x['_text']
+          return x
+        })
+        self.lists[tabId] = data
+        self.getItemData(tabId)
+      })
+    }
+    let selectData = {
+      name: 'tabs'
+    }
+    console.log(selectData)
+    self.selectDB(selectData).then((data) => {
+      data.forEach((x) => {
+        x['text'] = x['_title']
+        x['likeStatus'] = false
+        return x
+      })
+      self.tabs = data
+      console.log(self.tabs)
+    })
   },
   onReady () {
     console.log('page index onReady', this)
@@ -92,26 +119,27 @@ export default {
       if (Object.prototype.toString.call(self.lists[tabId]) !== '[object Array]') {
         let selectData = {
           name: 'text',
-          postData: {'_tabId': tabId},
-          callBack: (data) => {
-            console.log(data) // arguments是什么？
-            self.lists[tabId] = data
-            self.getItemData(tabId)
-          }
+          postData: {'_tabId': tabId}
         }
-        console.log(selectData)
-        self.selectDB(selectData).then()
+        self.selectDB(selectData).then((data) => {
+          data.forEach((x) => {
+            x['text'] = x['_text']
+            return x
+          })
+          self.lists[tabId] = data
+          self.getItemData(tabId)
+        })
       }
     },
     selectDB (_property) {
-      let {name, postData, callBack} = _property
+      let {name, postData} = _property
       let promise = new Promise((resolve, reject) => {
         if (Object.prototype.toString.call(postData) === '[object Object]') {
           db.collection(name).where(postData).get({
             success: function (res) {
               // res.data 包含该记录的数据
-              resolve(callBack)
-              callBack.apply(this, [res.data])
+              resolve(res.data)
+              // callBack.apply(this, [res.data])
             }
           })
         } else {
@@ -119,8 +147,8 @@ export default {
             success: function (res) {
               // res.data 包含该记录的数据
               console.log(res.data)
-              resolve(callBack)
-              callBack.apply(this, [res.data])
+              resolve(res.data)
+              // callBack.apply(this, [res.data])
             }
           })
         }

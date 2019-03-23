@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import vcard from '@/components/card'
+import vcard from '@/components/card/card'
 
 export default {
   components: {

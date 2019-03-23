@@ -1,28 +1,35 @@
 <template>
-  <div class="vcard">
-    <div class="list" v-for="item in items" :key="item.index">
-      <div class="title"><img src="../../static/images/icon.png"/><span>段子分享库</span></div>
-      <article>{{item.text}}</article>
-      <div class="btnDiv"><span @click="copyFn"><img src="../../static/images/copy.png"/></span><span @click="likeFn"><img src="../../static/images/like_i.png"/></span><span><button open-type="share"><img src="../../static/images/share.png"/></button></span></div>
-    </div>
+  <div>
+    <div class="title"><img src="../../../static/images/icon.png"/><span>段子分享库</span></div>
+    <article>{{item.text}}</article>
+    <div class="btnDiv"><span @click="copyFn"><img src="../../../static/images/copy.png"/></span><span @click="likeFn"><img :src="item.likeStatus ? '../../../../../static/images/like_e.png' : '../../../../../static/images/like_i.png'"/></span><span><button open-type="share"><img src="../../../static/images/share.png"/></button></span></div>
   </div>
 </template>
 
 <script>
+
 export default {
   props: {
-    items: {
-      type: Array,
-      default: []
+    item: {
+      type: Object,
+      default: {}
     }
   },
+  created () {
+    console.log('card index created', this)
+    console.log('card index created', wx)
+  },
+  // mounted () {
+  //   console.log(this.items)
+  //   this.items = JSON.parse(JSON.stringify(this.lists))
+  //   this.items.forEach((item) => {
+  //     item.likeStatus = false
+  //   })
+  // },
   methods: {
     copyFn (e) {
-      console.log(e.currentTarget.dataset)
-      var textArr = e.currentTarget.dataset.eventid.split('_')
-      var text = this.items[textArr[textArr.length - 1]].text
       mpvue.setClipboardData({
-        data: text,
+        data: this.item.text,
         success: function (res) {
           mpvue.getClipboardData({
             success: function (res) {
@@ -33,29 +40,25 @@ export default {
           })
         }
       })
+    },
+    likeFn (e) {
+      this.item.likeStatus = !this.item.likeStatus
+      console.log(this.item.likeStatus)
     }
   },
-  created () {
-    console.log('card index created', this)
-    console.log('card index created', wx)
-  },
-  onLoad () {
-    console.log('page index onLoad', this)
-    console.log('page index onLoad', this.items)
+  watch: {
+    'item.likeStatus': {
+      handler (newName, oldName) {
+        console.log('obj.a changed')
+      },
+      immediate: true,
+      deep: true
+    }
   }
 }
 </script>
 
 <style scoped>
-.vcard{
-  background-color:#eeeeee; 
-}
-.list{
-  background-color: #ffffff;
-  margin: 20rpx;
-  padding: 10rpx;
-  border-radius: 10rpx;
-}
 .title{
   display: flex;
   align-items: center;
