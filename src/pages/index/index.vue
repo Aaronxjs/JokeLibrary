@@ -2,16 +2,14 @@
   <div class="body">
     <van-tabs swipeable animated @change="onChange">
       <van-tab v-for="tab in tabs" :title="tab.text" :key="tab.id" :index="index" :data-index="index">
-        <vcards :items="tab_list_arr[index]"></vcards>
+        <vcards :items="tab_list_arr[index]" :type="type"></vcards>
       </van-tab>
     </van-tabs>
   </div>
 </template>
 
 <script>
-// import vanTab from '@/../static/vant/tab/index'
-// import vanTabs from '@/../static/vant/tabs/index'
-
+import store from '../../stores/globalStore'
 import vcards from '@/components/cards/cards'
 const oncePushNum = 8 // 每次加载笑话文档的个数
 let tabId = 0 // 当前加载的列表类型id
@@ -24,17 +22,18 @@ export default {
   },
   data () {
     return {
+      type: 'sy',
       tabs: [],
-      tab_list_arr: [], // 二维数组,每种类型笑话存储一个数组
-      lists: []
+      tab_list_arr: [],
+      lists: [] // 二维数组,每种类型笑话存储一个数组
     }
   },
   created () {
-    console.log('page index created', this)
-    console.log('page index created', wx)
+    // console.log('page index created', this)
+    // console.log('page index created', wx)
   },
   mounted () {
-    console.log('mounted', this)
+    // console.log('mounted', this)
   },
   onLoad () {
     console.log('page index onLoad', this)
@@ -47,8 +46,11 @@ export default {
       self.selectDB(selectData).then((data) => {
         data.forEach((x) => {
           x['text'] = x['_text']
+          console.log(store.getters.ismyliker(x))
+          x['likeStatus'] = store.getters.ismyliker(x)
           return x
         })
+        console.log(data)
         self.lists[tabId] = data
         self.getItemData(tabId)
       })
@@ -60,7 +62,6 @@ export default {
     self.selectDB(selectData).then((data) => {
       data.forEach((x) => {
         x['text'] = x['_title']
-        x['likeStatus'] = false
         return x
       })
       self.tabs = data
@@ -68,26 +69,45 @@ export default {
     })
   },
   onReady () {
-    console.log('page index onReady', this)
+    // console.log('page index onReady', this)
   },
   onShow () {
-    console.log('onShow', this)
+    console.log(store.getters.getliker)
+    if (Object.prototype.toString.call(this.tab_list_arr[tabId]) !== '[object Array]') return
+    this.tab_list_arr[tabId].forEach((x) => {
+      x['likeStatus'] = store.getters.ismyliker(x)
+      return x
+    })
   },
   onUnload () {
-    console.log('onUnload', this)
+    // console.log('onUnload', this)
   },
   onHide () {
-    console.log('onHide', this)
+    // console.log('onHide', this)
   },
   onShareAppMessage (res) {
-    console.log(res, '=====>>>>>')
+    // console.log(res, '=====>>>>>')
   },
   onPullDownRefresh () {
-    console.log('下拉', mpvue)
+    let selectData = {
+      name: 'text',
+      postData: {'_tabId': tabId}
+    }
+    this.selectDB(selectData).then((data) => {
+      data.forEach((x) => {
+        x['text'] = x['_text']
+        x['likeStatus'] = store.getters.ismyliker(x)
+        return x
+      })
+      this.tab_list_arr[tabId] = null
+      this.lists[tabId] = data
+      this.getItemData(tabId)
+      mpvue.stopPullDownRefresh()
+    })
   },
   onReachBottom () {
     // 到这底部在这里需要做什么事情
-    console.log('下拉', mpvue)
+    // console.log('下拉', mpvue)
     mpvue.showLoading({
       title: '加载中'
     })
@@ -107,7 +127,7 @@ export default {
         }
       }
       self.$set(self.tab_list_arr, _tabId, self.tab_list_arr[_tabId])
-      console.log(self.tab_list_arr)
+      // console.log(self.tab_list_arr)
     },
     likeFn (e) {
       console.log(e)
@@ -124,10 +144,16 @@ export default {
         self.selectDB(selectData).then((data) => {
           data.forEach((x) => {
             x['text'] = x['_text']
+            x['likeStatus'] = store.getters.ismyliker(x)
             return x
           })
           self.lists[tabId] = data
           self.getItemData(tabId)
+        })
+      } else {
+        this.tab_list_arr[tabId].forEach((x) => {
+          x['likeStatus'] = store.getters.ismyliker(x)
+          return x
         })
       }
     },

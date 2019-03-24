@@ -2,29 +2,34 @@
   <div>
     <div class="title"><img src="../../../static/images/icon.png"/><span>段子分享库</span></div>
     <article>{{item.text}}</article>
-    <div class="btnDiv"><span @click="copyFn"><img src="../../../static/images/copy.png"/></span><span @click="likeFn"><img :src="item.likeStatus ? '../../../../../static/images/like_e.png' : '../../../../../static/images/like_i.png'"/></span><span><button open-type="share"><img src="../../../static/images/share.png"/></button></span></div>
+    <div class="btnDiv"><span @click="copyFn"><img src="../../../static/images/copy.png"/></span><span v-if="type=='sc'" @click="removeFn"><img src="../../../static/images/remove.png"/></span><span v-if="type=='sy'" @click="likeFn"><img :src="item.likeStatus ? '../../../../../static/images/love_e.png' : '../../../../../static/images/love_i.png'"/></span><span><button open-type="share"><img src="../../../static/images/share.png"/></button></span></div>
   </div>
 </template>
 
 <script>
-
+import store from '../../stores/globalStore'
 export default {
   props: {
+    type: {
+      type: String,
+      default: 'sy'
+    },
     item: {
       type: Object,
       default: {}
     }
   },
+  data () {
+    return {
+      likeStatus: false
+    }
+  },
   created () {
-    console.log('card index created', this)
-    console.log('card index created', wx)
+    // console.log('card index created', this)
+    // console.log('card index created', wx)
   },
   // mounted () {
-  //   console.log(this.items)
-  //   this.items = JSON.parse(JSON.stringify(this.lists))
-  //   this.items.forEach((item) => {
-  //     item.likeStatus = false
-  //   })
+  //   this.item.likeStatus = store.getters.ismyliker(this.item)
   // },
   methods: {
     copyFn (e) {
@@ -42,17 +47,18 @@ export default {
       })
     },
     likeFn (e) {
-      this.item.likeStatus = !this.item.likeStatus
-      console.log(this.item.likeStatus)
-    }
-  },
-  watch: {
-    'item.likeStatus': {
-      handler (newName, oldName) {
-        console.log('obj.a changed')
-      },
-      immediate: true,
-      deep: true
+      var likeStatus = !this.item.likeStatus
+      console.log(likeStatus)
+      this.$set(this.item, 'likeStatus', likeStatus)
+      if (likeStatus) {
+        store.commit('pushliker', this.item)
+      } else {
+        store.commit('popliker', this.item)
+      }
+    },
+    removeFn () {
+      store.commit('popliker', this.item)
+      this.$emit('updataItems', this.item)
     }
   }
 }
@@ -79,8 +85,8 @@ export default {
 }
 
 .btnDiv img{
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .btnDiv span{
@@ -91,7 +97,7 @@ export default {
   margin-left: 20px;
 }
 article{
-  text-indent:32px;
+  text-indent:24px;
   font-size: 16px;
   border-bottom: 1px solid #eeeeee;
   padding-bottom: 10px;
@@ -107,6 +113,5 @@ button::after{
 }
 .button-hover{
   color: #ffffff;
-  background-color: #ffffff;
 }
 </style>

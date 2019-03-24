@@ -1,7 +1,7 @@
 <template>
   <div class="vcard">
     <div class="list" v-for="item in items" :key="item.index" :index="index" :data-index="index">
-      <vcard :item="item"></vcard>
+      <vcard @updataItems="updataItems" :item="item" :type="type"></vcard>
     </div>
   </div>
 </template>
@@ -13,14 +13,23 @@ export default {
     vcard
   },
   props: {
+    type: {
+      type: String,
+      default: 'sy'
+    },
     items: {
       type: Array,
       default: []
     }
   },
   created () {
-    console.log('card index created', this)
-    console.log('card index created', wx)
+    // console.log('card index created', this)
+    // console.log('card index created', wx)
+  },
+  methods: {
+    updataItems (item) {
+      this.$emit('updataItems', item)
+    }
   }
 }
 </script>
