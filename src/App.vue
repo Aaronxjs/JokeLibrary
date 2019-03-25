@@ -42,7 +42,8 @@ export default {
 page{
   height: 100%;
 }
-.container{
+.body{
   height: 100%;
+  background-color:#eeeeee; 
 }
 </style>
