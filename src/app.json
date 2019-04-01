@@ -1,6 +1,8 @@
 {
   "pages": [
-    "pages/index/main"
+    "pages/index/main",
+    "pages/love/main",
+    "pages/content/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -9,5 +11,21 @@
     "navigationBarTitleText": "段子分享库",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/main",
+        "selectedIconPath": "static/images/home_e.png",
+        "iconPath": "static/images/home_i.png", 
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/love/main",
+        "selectedIconPath": "static/images/love_e.png",
+        "iconPath": "static/images/love_i.png", 
+        "text": "收藏"
+      }
+    ]
   }
 }
