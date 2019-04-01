@@ -1,7 +1,8 @@
 {
   "pages": [
     "pages/index/main",
-    "pages/love/main"
+    "pages/love/main",
+    "pages/content/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

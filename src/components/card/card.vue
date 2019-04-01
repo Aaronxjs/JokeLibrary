@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="title"><img src="../../../static/images/icon.png"/><span>段子分享库</span></div>
-    <article>{{item.text}}</article>
+    <article @click="linkToFn">{{item.text}}</article>
     <div class="btnDiv"><span @click="copyFn"><img src="../../../static/images/copy.png"/></span><span v-if="type=='sc'" @click="removeFn"><img src="../../../static/images/remove.png"/></span><span v-if="type=='sy'" @click="likeFn"><img :src="item.likeStatus ? '../../../../../static/images/love_e.png' : '../../../../../static/images/love_i.png'"/></span><span><button open-type="share"><img src="../../../static/images/share.png"/></button></span></div>
   </div>
 </template>
@@ -24,13 +24,9 @@ export default {
       likeStatus: false
     }
   },
-  created () {
-    // console.log('card index created', this)
-    // console.log('card index created', wx)
+  onLoad () {
+    console.log(this.item)
   },
-  // mounted () {
-  //   this.item.likeStatus = store.getters.ismyliker(this.item)
-  // },
   methods: {
     copyFn (e) {
       mpvue.setClipboardData({
@@ -48,7 +44,6 @@ export default {
     },
     likeFn (e) {
       var likeStatus = !this.item.likeStatus
-      console.log(likeStatus)
       this.$set(this.item, 'likeStatus', likeStatus)
       if (likeStatus) {
         store.commit('pushliker', this.item)
@@ -59,6 +54,11 @@ export default {
     removeFn () {
       store.commit('popliker', this.item)
       this.$emit('updataItems', this.item)
+    },
+    linkToFn () {
+      mpvue.navigateTo({
+        url: '../content/main?item=' + JSON.stringify(this.item)
+      })
     }
   }
 }
