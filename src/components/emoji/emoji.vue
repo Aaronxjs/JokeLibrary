@@ -1,6 +1,6 @@
 <template>
-  <div class="emoji">
-    <div class="button"><img @click="showFun" src="../../../static/emojis/emotion-o.png"/></div>
+  <div class="emoji_cp">
+    <div class="button"><img @click="changShowFn" src="../../../static/emojis/emotion-o.png"/></div>
     <div v-if="showEmojis" class="emojis_box">
       <div class="emoji_wrap" v-for="item in emojiList" :key="item.index">
         <img @click="clickEmoji" :src="item.img" :data-key="item.key" class="emoji">
@@ -20,11 +20,16 @@ export default {
     msg: {
       type: String,
       default: ''
+    },
+    showEmojis: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
-      showEmojis: true
+      showEmojis: false,
+      emojiList: []
     }
   },
   created () {
@@ -33,47 +38,56 @@ export default {
       key: key,
       img: emojiToPath(key)
     }))
+    this.emojiList = emojiList
   },
   methods: {
     // 显示或影藏表情选择框
-    showFn () {
-      this.showEmojis = !this.showEmojis
+    changShowFn (e) {
+      this.$emit('showEmojisFn', !this.showEmojis)
     },
     // 点击表情
     clickEmoji: function (e) {
       const { key } = e.currentTarget.dataset
-      this.$emit('updataMsg', msg + key)
+      this.$emit('updataMsg', this.msg + key)
+    },
+    sendMsg: function () {
+      this.$emit('showEmojisFn', !this.showEmojis)
+      this.$emit('sendMsg')
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-.emoji{
+.emoji_cp{
   background-color: #ffffff;
+  z-index: 999;
   width: 100%;
   .button{
-    width: 100%;
-    height: 30px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    padding: 10px;
+    img{
+      width: 30px;
+      height: 30px;
+    }
   }
 }
 .emojis_box{
   background: #fff;
-  border-top: 1px solid #ccc;
+  width: 100%;
   height: 150px;
-  padding: 10px 25rpx;
+  padding: 10px;
   display: flex;
   flex-flow: row wrap;
   align-content: flex-start;
 }
 
 .emoji_wrap {
+  display: flex;
   flex: 0 0 100rpx;
   height: 50px;
-  display: flex;
   align-items: center;
   justify-content: center;
 }

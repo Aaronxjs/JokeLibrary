@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/main",
     "pages/love/main",
+    "pages/content/main",
     "pages/charts/main"
   ],
   "window": {
