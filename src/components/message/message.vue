@@ -56,10 +56,6 @@ import emojiText from '@/components/emojiText/emojiText'
 import { textToEmoji } from '../../utils/emojis'
 
 import userInfo from '../../stores/globalUserInfo'
-import { addData } from '../../utils/dataBase'
-
-mpvue.cloud.init({env: 'aaronxu-6ba5fc'})
-const db = mpvue.cloud.database({env: 'aaronxu-6ba5fc'}) // [此处ENV可以不屑]
 
 export default {
   components: {
@@ -106,18 +102,27 @@ export default {
       this.msg = msg
     },
     sendMsg () {
-      if (this.msg === '') return
-      const mymessage = {
-        avatarUrl: userInfo.getters.getUserInfo.avatarUrl,
-        nickName: userInfo.getters.getUserInfo.nickName,
-        text: textToEmoji(this.msg),
-        praise: 0
-      }
-      addData(db, 'messages', mymessage)
-      this.myMessages.unshift(mymessage)
-      this.msg = ''
-      mpvue.showToast({
-        title: '已留言'
+      const self = this
+      if (self.msg === '') return
+      userInfo.commit('setUserInfo', function () {
+        const mymessage = {
+          avatarUrl: userInfo.getters.getUserInfo.avatarUrl,
+          nickName: userInfo.getters.getUserInfo.nickName,
+          text: textToEmoji(self.msg),
+          praise: 0
+        }
+        mpvue.cloud.callFunction({
+          name: 'addData',
+          data: mymessage,
+          complete: res => {
+            console.log('callFunction test result: ', res)
+          }
+        })
+        self.myMessages.unshift(mymessage)
+        self.msg = ''
+        mpvue.showToast({
+          title: '已留言'
+        })
       })
     },
     showEmojisFn (_Boolean) {
