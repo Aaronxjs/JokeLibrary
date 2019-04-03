@@ -131,5 +131,6 @@ button::after{
   vertical-align: top;
   margin-left: 0px;
   margin-top: -10px;
+  font-size: 12px;
 }
 </style>

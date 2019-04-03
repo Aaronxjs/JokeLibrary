@@ -6,10 +6,7 @@
 </template>
 
 <script>
-import store from '../../stores/globalStore'
 import vcards from '@/components/cards/cards'
-const oncePushNum = 8 // 每次加载笑话文档的个数
-
 export default {
   components: {
     vcards
@@ -22,11 +19,11 @@ export default {
   onLoad () {
     // 查看是否授权
     mpvue.getSetting({
-      success(res) {
+      success (res) {
         if (res.authSetting['scope.userInfo']) {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称
           mpvue.getUserInfo({
-            success(res) {
+            success (res) {
               console.log(res.userInfo)
             }
           })
