@@ -2,14 +2,15 @@
   <div class="card">
     <div class="title"><img src="/static/images/icon.png"/><span>段子分享库</span></div>
     <article @click="linkToFn">{{item.text}}</article>
-    <div class="btnDiv" v-if="type=='ct'"><span @click="copyFn"><img src="/static/images/copy.png"/></span><span @click="likeFn"><img :src="item.likeStatus ? '/static/images/love_e.png' : '/static/images/love_i.png'"/></span><span><button open-type="share"><img src="/static/images/share.png"/></button></span></div>
-    <div class="btnDiv" v-if="type=='sc'"><span @click="copyFn"><img src="/static/images/copy.png"/></span><span @click="removeFn"><img src="/static/images/remove.png"/></span><span><button open-type="share"><img src="/static/images/share.png"/></button></span></div>
+    <div class="btnDiv" v-if="type=='ct'"><button @click="copyFn"><img src="/static/images/copy.png"/></button><button @click="likeFn"><img :src="item.likeStatus ? '/static/images/love_e.png' : '/static/images/love_i.png'"/></button><button open-type="share"><img src="/static/images/share.png"/></button></div>
+    <div class="btnDiv" v-if="type=='sc'"><button @click="copyFn"><img src="/static/images/copy.png"/></button><button @click="removeFn"><img src="/static/images/remove.png"/></button><button open-type="share"><img src="/static/images/share.png"/></button></div>
     <div class="btnDiv" v-if="type=='sy'"><div class="love" ><img src="/static/images/love_i.png"/></div><div class="loveNum">{{item.loveNum || 1000}}</div></div>
   </div>
 </template>
 
 <script>
 import store from '../../stores/globalStore'
+import userInfo from '../../stores/globalUserInfo'
 export default {
   props: {
     type: {
@@ -47,13 +48,16 @@ export default {
       })
     },
     likeFn (e) {
-      var likeStatus = !this.item.likeStatus
-      this.$set(this.item, 'likeStatus', likeStatus)
-      if (likeStatus) {
-        store.commit('pushliker', this.item)
-      } else {
-        store.commit('popliker', this.item)
-      }
+      let self = this
+      userInfo.commit('setUserInfo', function () {
+        var likeStatus = !self.item.likeStatus
+        self.$set(self.item, 'likeStatus', likeStatus)
+        if (likeStatus) {
+          store.commit('pushliker', self.item)
+        } else {
+          store.commit('popliker', self.item)
+        }
+      })
     },
     removeFn () {
       store.commit('popliker', this.item)
@@ -61,6 +65,9 @@ export default {
     },
     linkToFn () {
       if (this.type === 'ct') return
+      // mpvue.navigateTo({
+      //   url: '../login/main'
+      // })
       mpvue.navigateTo({
         url: '../content/main?item=' + JSON.stringify(this.item)
       })
@@ -89,8 +96,7 @@ export default {
 }
 .btnDiv{
   text-align: right;
-  padding-top: 10px;
-  padding-right: 10px; 
+  padding: 10px;
 }
 
 .btnDiv img{
@@ -98,11 +104,11 @@ export default {
   height: 24px;
 }
 
-.btnDiv span{
+.btnDiv button{
   display: inline-block;
   vertical-align: middle;
 }
-.btnDiv span+span{
+.btnDiv button+button{
   margin-left: 20px;
 }
 article{

@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <button v-if="canIUse" open-type="getUserInfo" @getuserinfo="bindGetUserInfo">授权登录</button>
-    <span>同意微信授权，登录小程序</span>
+    <div>同意微信授权，登录小程序</div>
   </div>
 </template>
 
@@ -24,12 +24,22 @@ export default {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称
           mpvue.getUserInfo({
             success (res) {
-              console.log(res.userInfo)
+              var userInfo = mpvue.getStorageSync('userInfo')
+              if (userInfo.nickName === res.userInfo.nickName) {
+                mpvue.navigateBack()
+              }
             }
           })
         }
       }
     })
+  },
+  methods: {
+    bindGetUserInfo (e) {
+      console.log(e.mp.detail.userInfo)
+      mpvue.setStorageSync('userInfo', e.mp.detail.userInfo)
+      mpvue.navigateBack()
+    }
   }
 }
 </script>
@@ -37,14 +47,15 @@ export default {
 <style scoped lang="scss">
   .login{
     width: 100%;
-    height: 100%;
     button{
       width: 60%;
       border: 1px solid #0DBC79;
-      margin: 400px auto 10px;
+      margin: 400px auto 0px;
     }
-    span{
-      margin: 0xp auto;
+    div{
+      width: 60%;
+      text-align: center;
+      margin: 10px auto;
     }
   }
 

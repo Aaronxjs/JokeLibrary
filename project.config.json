@@ -11,6 +11,7 @@
 	"compileType": "miniprogram",
 	"appid": "wx4a0892984cc161c4",
 	"projectname": "JokeLibrary",
+	"cloudfunctionRoot": "./cloud-functions",
 	"condition": {
 		"search": {
 			"current": -1,

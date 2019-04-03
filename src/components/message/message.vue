@@ -3,16 +3,18 @@
     <div class="showMessage" v-if="isShow">
       <div class="header"><span>精选留言</span><span class="link" @click="sendMessageFn">写留言</span></div>
       <div class="content" v-for="message in messages" :key="message.index">
-        <div class="left"><img :src="message.tx"/></div>
+        <div class="left"><img :src="message.avatarUrl"/></div>
         <div class="center">
           <div class="header">
-            <div class="name">{{message.name}}</div>
+            <div class="name">{{message.nickName}}</div>
             <div class="praise">
               <img src="../../../static/images/praise.png">
               <span>{{message.praise}}</span>
             </div>
           </div>
-          <div class="messageText">{{message.text}}</div>
+          <div class="messageText">
+            <emojiText :texts="message.text"></emojiText>
+          </div>
         </div>
       </div>
     </div>
@@ -28,10 +30,10 @@
       <div class="myMessage">
         <div class="title">我的留言</div>
         <div class="content" v-for="(myMessage, index) in myMessages" :key="index">
-          <div class="left"><img :src="myMessage.tx"/></div>
+          <div class="left"><img :src="myMessage.avatarUrl"/></div>
           <div class="center">
             <div class="header">
-              <div class="name">{{myMessage.name}}</div>
+              <div class="name">{{myMessage.nickName}}</div>
             </div>
             <div class="messageText">
               <emojiText :texts="myMessage.text"></emojiText>
@@ -45,12 +47,20 @@
 </template>
 
 <script>
+
 // 引入表情包组件
 import emoji from '@/components/emoji/emoji'
 // 引入显示表情文字组件
 import emojiText from '@/components/emojiText/emojiText'
 // 表情转化为文字
 import { textToEmoji } from '../../utils/emojis'
+
+import userInfo from '../../stores/globalUserInfo'
+import { addData } from '../../utils/dataBase'
+
+mpvue.cloud.init({env: 'aaronxu-6ba5fc'})
+const db = mpvue.cloud.database({env: 'aaronxu-6ba5fc'}) // [此处ENV可以不屑]
+
 export default {
   components: {
     emoji,
@@ -60,12 +70,6 @@ export default {
     messages: {
       type: Array,
       default: [
-        {
-          tx: '../../../../../static/images/copy.png',
-          name: 'Aaron*',
-          praise: 100,
-          text: '哈哈哈哈哈哈哈哈哈'
-        }
       ]
     },
     myMessages: {
@@ -103,14 +107,14 @@ export default {
     },
     sendMsg () {
       if (this.msg === '') return
-      const message = {
-        tx: '../../../../../static/images/copy.png',
-        name: 'Aaron*',
-        text: textToEmoji(this.msg)
+      const mymessage = {
+        avatarUrl: userInfo.getters.getUserInfo.avatarUrl,
+        nickName: userInfo.getters.getUserInfo.nickName,
+        text: textToEmoji(this.msg),
+        praise: 0
       }
-      console.log(textToEmoji(this.msg))
-      this.myMessages.unshift(message)
-      this.$set(this.myMessages, 0, message)
+      addData(db, 'messages', mymessage)
+      this.myMessages.unshift(mymessage)
       this.msg = ''
       mpvue.showToast({
         title: '已留言'
@@ -143,6 +147,7 @@ export default {
     }
   }
   .content{
+    padding: 10px;
     width: 100%;
     display: flex;
     align-items: center;

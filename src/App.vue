@@ -40,7 +40,6 @@ export default {
   -o-transition: width 2s;
 }
 page{
-  height: 100%;
   font-size: 14px;
 }
 .body{

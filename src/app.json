@@ -3,7 +3,8 @@
     "pages/index/main",
     "pages/love/main",
     "pages/content/main",
-    "pages/charts/main"
+    "pages/charts/main",
+    "pages/login/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -46,7 +46,6 @@ export default {
       self.selectDB(selectData).then((data) => {
         data.forEach((x) => {
           x['text'] = x['_text']
-          console.log(store.getters.ismyliker(x))
           x['likeStatus'] = store.getters.ismyliker(x)
           return x
         })
@@ -72,7 +71,6 @@ export default {
     // console.log('page index onReady', this)
   },
   onShow () {
-    console.log(store.getters.getliker)
     if (Object.prototype.toString.call(this.tab_list_arr[tabId]) !== '[object Array]') return
     this.tab_list_arr[tabId].forEach((x) => {
       x['likeStatus'] = store.getters.ismyliker(x)
