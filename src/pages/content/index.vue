@@ -15,9 +15,11 @@ export default {
   },
   data () {
     return {
-      type: 'sy',
+      type: 'ct',
       item: {}
     }
+  },
+  onShareAppMessage () {
   },
   onLoad (option) {
     let item = JSON.parse(option.item)
@@ -34,4 +36,9 @@ export default {
 </script>
 
 <style scoped>
+.content{
+  width: 100%;
+  height: 100%;
+  background-color:#eeeeee; 
+}
 </style>

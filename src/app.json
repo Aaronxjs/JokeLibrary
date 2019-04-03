@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/main",
     "pages/love/main",
-    "pages/content/main"
+    "pages/content/main",
+    "pages/charts/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -19,6 +20,12 @@
         "selectedIconPath": "static/images/home_e.png",
         "iconPath": "static/images/home_i.png", 
         "text": "首页"
+      },
+      {
+        "pagePath": "pages/charts/main",
+        "selectedIconPath": "static/images/charts_e.png",
+        "iconPath": "static/images/charts_i.png", 
+        "text": "排行榜"
       },
       {
         "pagePath": "pages/love/main",

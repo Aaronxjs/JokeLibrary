@@ -41,6 +41,7 @@ export default {
 }
 page{
   height: 100%;
+  font-size: 14px;
 }
 .body{
   height: 100%;

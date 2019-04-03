@@ -10,9 +10,13 @@ export default new Vuex.Store({
     pushliker (state, liker) {
       state.likeText.push(liker)
       mpvue.setStorageSync('likeText', state.likeText)
+      mpvue.showToast(
+        {
+          title: '已收藏'
+        }
+      )
     },
     popliker (state, liker) {
-      console.log(this)
       let likeTextId = []
       state.likeText.forEach((item) => {
         likeTextId.push(item._textId)
@@ -21,6 +25,11 @@ export default new Vuex.Store({
       if (index > -1) {
         state.likeText.splice(index, 1)
       }
+      mpvue.showToast(
+        {
+          title: '已删除'
+        }
+      )
       mpvue.setStorageSync('likeText', state.likeText)
     }
   },
