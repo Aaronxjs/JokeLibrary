@@ -72,7 +72,19 @@ export default {
       type: Array,
       default: [
       ]
+    },
+    textId: {
+      type: Number,
+      default: 0
     }
+  },
+  onLoad () {
+    this.selectMessages()
+    this.selectMyMessages()
+  },
+  onShow () {
+    this.selectMessages()
+    this.selectMyMessages()
   },
   data () {
     return {
@@ -95,7 +107,6 @@ export default {
       this.msg = e.mp.detail.value
     },
     inputFocus () {
-      console.log('inputMsg')
       this.showEmojisFn(false)
     },
     updataMsg (msg) {
@@ -109,19 +120,32 @@ export default {
           avatarUrl: userInfo.getters.getUserInfo.avatarUrl,
           nickName: userInfo.getters.getUserInfo.nickName,
           text: textToEmoji(self.msg),
-          praise: 0
+          praise: 0,
+          isShow: true,
+          textId: self.textId
         }
-        mpvue.cloud.callFunction({
-          name: 'addData',
-          data: mymessage,
-          complete: res => {
-            console.log('callFunction test result: ', res)
-          }
+        mpvue.showLoading({
+          title: '留言中'
         })
-        self.myMessages.unshift(mymessage)
-        self.msg = ''
-        mpvue.showToast({
-          title: '已留言'
+        mpvue.cloud.callFunction({
+          name: 'add',
+          data: mymessage,
+          success: res => {
+            mpvue.hideLoading()
+            self.myMessages.unshift(mymessage)
+            self.msg = ''
+            mpvue.showToast({
+              title: '已留言'
+            })
+            self.selectMyMessages()
+            self.selectMessages()
+          },
+          fail: res => {
+            mpvue.hideLoading()
+            mpvue.showToast({
+              title: res.result.errMsg
+            })
+          }
         })
       })
     },
@@ -129,9 +153,77 @@ export default {
       this.showEmojis = _Boolean
     },
     deleteFn (e) {
-      console.log(e.currentTarget)
       const id = e.currentTarget.dataset.key
-      this.myMessages.splice(id, 1)
+      const message = this.myMessages.splice(id, 1)
+      mpvue.showLoading({
+        title: '删除中'
+      })
+      this.deleteMessage(message[0]._id, () => {
+        this.selectMyMessages()
+        this.selectMessages()
+      })
+    },
+    selectMessages () {
+      mpvue.cloud.init({
+        env: 'aaronxu-6ba5fc',
+        traceUser: true
+      })
+      mpvue.cloud.callFunction({
+        name: 'selectMessage',
+        data: {
+          textId: this.textId
+        },
+        success: res => {
+          this.messages = JSON.parse(JSON.stringify(res.result.data))
+        },
+        fail: res => {
+          console.log('fail: ' + res)
+          this.messages = []
+        }
+      })
+      console.log('selectMessage')
+    },
+    selectMyMessages () {
+      mpvue.cloud.init({
+        env: 'aaronxu-6ba5fc',
+        traceUser: true
+      })
+      mpvue.cloud.callFunction({
+        name: 'selectMyMessage',
+        data: {
+          textId: this.textId
+        },
+        success: res => {
+          this.myMessages = JSON.parse(JSON.stringify(res.result.data))
+        },
+        fail: res => {
+          this.myMessages = []
+        }
+      })
+      console.log('selectMyMessage')
+    },
+    deleteMessage (_id, _callback) {
+      mpvue.cloud.init({
+        env: 'aaronxu-6ba5fc',
+        traceUser: true
+      })
+      mpvue.cloud.callFunction({
+        name: 'deleteMessage',
+        data: {
+          _id: _id
+        },
+        success: res => {
+          mpvue.hideLoading()
+          mpvue.showToast({
+            title: '已删除'
+          })
+          _callback()
+          console.log('success: ' + res)
+        },
+        fail: res => {
+          console.log('fail: ' + res)
+        }
+      })
     }
   }
 }
@@ -173,7 +265,7 @@ export default {
         justify-content: space-between;
         height: 40px;
         .praise{
-          margin-right: 10px;
+          margin-right: 25px;
           display: flex;
           align-items: center;
           justify-content: flex-start;

@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <vcard :item="item" :type="type"></vcard>
-    <message></message>
+    <message :textId="item._textId"></message>
   </div>
 </template>
 

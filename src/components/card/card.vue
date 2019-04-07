@@ -4,7 +4,7 @@
     <article @click="linkToFn">{{item.text}}</article>
     <div class="btnDiv" v-if="type=='ct'"><button @click="copyFn"><img src="/static/images/copy.png"/></button><button @click="likeFn"><img :src="item.likeStatus ? '/static/images/love_e.png' : '/static/images/love_i.png'"/></button><button open-type="share"><img src="/static/images/share.png"/></button></div>
     <div class="btnDiv" v-if="type=='sc'"><button @click="copyFn"><img src="/static/images/copy.png"/></button><button @click="removeFn"><img src="/static/images/remove.png"/></button><button open-type="share"><img src="/static/images/share.png"/></button></div>
-    <div class="btnDiv" v-if="type=='sy'"><div class="love" ><img src="/static/images/love_i.png"/></div><div class="loveNum">{{item.loveNum || 1000}}</div></div>
+    <div class="btnDiv" v-if="type=='sy'"><div class="love" ><img src="/static/images/love_i.png"/></div><div class="loveNum">{{item._love}}</div></div>
   </div>
 </template>
 
@@ -32,6 +32,15 @@ export default {
   },
   onShareAppMessage () {
   },
+  // computed: {
+  //   praise () {
+  //     let loveNum = this.item._love
+  //     if (loveNum >= 1000) {
+  //       loveNum = loveNum / 1000 + 'k'
+  //     }
+  //     return loveNum
+  //   }
+  // },
   methods: {
     copyFn (e) {
       mpvue.setClipboardData({
@@ -54,8 +63,12 @@ export default {
         self.$set(self.item, 'likeStatus', likeStatus)
         if (likeStatus) {
           store.commit('pushliker', self.item)
+          self.$set(self.item, '_love', self.item._love + 1)
+          console.log(self.item)
         } else {
           store.commit('popliker', self.item)
+          self.$set(self.item, '_love', self.item._love - 1)
+          console.log(self.item)
         }
       })
     },
